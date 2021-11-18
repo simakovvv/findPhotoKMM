@@ -57,4 +57,7 @@ dependencies {
 
     // Images downloading
     implementation("io.coil-kt:coil-compose:1.4.0")
+
+    // view model injection
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0")
 }

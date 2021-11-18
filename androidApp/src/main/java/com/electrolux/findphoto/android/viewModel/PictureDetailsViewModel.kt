@@ -24,7 +24,14 @@ data class PictureListState(
     val error: Exception? = null
 )
 
-class PictureViewModel(
+data class PictureProfileState(
+    val loading: Boolean = false,
+    val searchTag: String = "",
+    val number: Int,
+    val item: PictureDetails?  = null
+)
+
+class PictureListViewModel(
     private val sdk: PicturesSDK
 ) : ViewModel() {
     private val uiIntent = Channel<PictureListIntent>(Channel.UNLIMITED)
