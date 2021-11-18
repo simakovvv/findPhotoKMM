@@ -29,6 +29,7 @@ data class PictureProfileState(
 )
 
 class PictureDetailsViewModel(
+    pictureId: Int?,
     private val sdk: PicturesSDK
 ) : ViewModel() {
     private val uiIntent = Channel<PictureListIntent>(Channel.UNLIMITED)
@@ -47,6 +48,10 @@ class PictureDetailsViewModel(
 
     init {
         handleIntent()
+        pictureId?.let {
+            sendIntent(PictureDetailsIntent.Load(pictureId))
+        }
+
     }
 
     fun sendIntent(intent: PictureDetailsIntent) = viewModelScope.launch(Dispatchers.IO) {

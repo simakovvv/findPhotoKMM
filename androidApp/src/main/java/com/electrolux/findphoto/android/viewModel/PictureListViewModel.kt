@@ -45,7 +45,7 @@ class PictureListViewModel(
         sendIntent(PictureListIntent.LoadList("Electrolux"))
     }
 
-    fun sendIntent(intent: PictureListIntent) = viewModelScope.launch(Dispatchers.IO)  {
+    private fun sendIntent(intent: PictureListIntent) = viewModelScope.launch(Dispatchers.IO)  {
         uiIntent.send(intent)
     }
 

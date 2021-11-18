@@ -15,10 +15,10 @@ internal class PictureListViewModelFactory(private val sdk: PicturesSDK) : ViewM
     }
 }
 
-internal class PictureDetailsViewModelFactory(private val sdk: PicturesSDK) : ViewModelProvider.Factory {
+internal class PictureDetailsViewModelFactory(private val pictureId: Int?,private val sdk: PicturesSDK) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PictureDetailsViewModel::class.java)) {
-            return PictureDetailsViewModel(sdk) as T
+            return PictureDetailsViewModel(pictureId ,sdk) as T
         }
         throw IllegalArgumentException("Unknown class name")
     }

@@ -9,7 +9,8 @@ object Injector {
         PicturesSDK(DatabaseDriverFactory(context))
     )
 
-    internal fun providePictureDetailsViewModelFactory(context: Context) = PictureDetailsViewModelFactory(
+    internal fun providePictureDetailsViewModelFactory(pictureId: Int?,context: Context) = PictureDetailsViewModelFactory(
+        pictureId,
         PicturesSDK(DatabaseDriverFactory(context))
     )
 }

@@ -1,11 +1,14 @@
 package com.electrolux.findphoto.android.compose.ui
 
 import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -33,40 +36,37 @@ internal fun PictureDetailsScreen(
     navController: NavHostController,
     pictureId: Int?,
     viewModel: PictureDetailsViewModel =
-        viewModel(factory = Injector.providePictureDetailsViewModelFactory(context)),
+        viewModel(factory = Injector.providePictureDetailsViewModelFactory(pictureId,context)),
 ) {
-    pictureId?.let {
-        viewModel.sendIntent(PictureDetailsIntent.Load(it))
-    }
 
     val profileState by viewModel.profileState.collectAsState()
     val scrollState = rememberScrollState()
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        BoxWithConstraints {
-            Surface {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState),
-                ) {
-                    profileState.item?.url?.let {
-                        PictureDetailsHeader(
-                            it,
-                            this@BoxWithConstraints.maxHeight
-                        )
-                    }
+    val onBack = { navController.navigate("pictureList") }
+    BackHandler(onBack = onBack)
+    Scaffold(
+        topBar = { DetailTopAppBar(onBack) }
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            BoxWithConstraints {
+                Surface {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(scrollState),
+                    ) {
+                        profileState.item?.url?.let {
+                            PictureDetailsHeader(
+                                it,
+                                this@BoxWithConstraints.maxHeight
+                            )
+                        }
 
-                    ProfileContent(profileState,this@BoxWithConstraints.maxHeight)
+                        ProfileContent(profileState,this@BoxWithConstraints.maxHeight)
+                    }
                 }
             }
         }
-    }
-    Button(modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp),
-        onClick = { navController.navigate("pictureList") }) {
-        Text("Go back to list!")
     }
 }
 
@@ -102,8 +102,6 @@ private fun ProfileContent(picDetails: PictureDetailsState, containerHeight: Dp)
         picDetails.item?.title?.let {
             Title(it)
         }
-
-        Title("Num: ${picDetails.number}. Search tag: ${picDetails.searchTag}")
         ProfileProperty("Num:", picDetails.number.toString())
         ProfileProperty("Search tag:", picDetails.searchTag)
         Spacer(Modifier.height((containerHeight - 320.dp).coerceAtLeast(0.dp)))
@@ -139,4 +137,19 @@ private fun ProfileProperty(label: String, value: String) {
             overflow = TextOverflow.Visible
         )
     }
+}
+
+@Composable
+private fun DetailTopAppBar(onBack: () -> Unit) {
+    TopAppBar(
+        title = { Text("Details") },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Back",
+                )
+            }
+        }
+    )
 }
