@@ -1,10 +1,10 @@
 # findPhotoKMM
 pet project for interview
 
-findPhoto
+**findPhoto**
 kmmSample project for interview
 
-Application uses folllowing features:
+**Application uses folllowing features:**
 
 Jetpack Compose
 Standart Kotlin-Conpose viewModel library
@@ -16,7 +16,7 @@ MVI design pattern
 Flickr Api as remote pictures server
 Coil using for downloading and handing images
 
-Screen Content:
+**Screen Content:**
 
 Search bar. Allows sending requests to remote server
 App shows loading indicator while the image is loading
@@ -26,7 +26,7 @@ User can interact with app while it’s fetching the photos
 All of the photos has a local cashe to prevent multiple rest request sending
 The photo displayed right after it has been downloaded, without waiting for processing the others
 
-Not implemented:
+**Not implemented:**
 
 Images downloading
 Tapping on the image will highlight the cell and the user should be able to save the image
