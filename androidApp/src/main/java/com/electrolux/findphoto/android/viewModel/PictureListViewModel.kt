@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.*
 
 sealed class PictureListIntent {
     data class LoadList(val key: String) : PictureListIntent()
+    object LoadCashed : PictureListIntent()
     data class SelectPicture(val pictureId: Int) : PictureListIntent()
     object DownloadSelectedPictures : PictureListIntent()
     data class Download(val pictureId: Int) : PictureListIntent()
@@ -42,7 +43,7 @@ class PictureListViewModel(
     }
     init {
         handleIntent()
-        sendIntent(PictureListIntent.LoadList("Electrolux"))
+        sendIntent(PictureListIntent.LoadCashed)
     }
 
     private fun sendIntent(intent: PictureListIntent) = viewModelScope.launch(Dispatchers.IO)  {
@@ -55,6 +56,11 @@ class PictureListViewModel(
                 when (it) {
                     is PictureListIntent.Download -> {}//TODO()
                     PictureListIntent.DownloadSelectedPictures -> {}//TODO()
+                    is PictureListIntent.LoadCashed -> {
+                        sdk.getCachedData()?.let {
+                            _listState.emit(listState.value.copy(searchTag = it.searchTag, list = it.picturesList, loading = false))
+                        }
+                    }
                     is PictureListIntent.LoadList -> {
                         val picturesInfo = sdk.getAllPicturesInfo( searchTag = it.key).picturesList
                         _listState.emit(listState.value.copy(searchTag = it.key, list = picturesInfo))
