@@ -32,21 +32,23 @@ class PictureListViewModel(
     private val _listState = MutableStateFlow(PictureListState(false, "", listOf(), null))
     val listState = _listState.asStateFlow()
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-        // handle thrown exceptions from coroutine scope
-        Log.e("PictureListViewModel coroutineExceptionHandler", throwable.toString())
-        if(throwable is java.lang.Exception) {
-            viewModelScope.launch {
-                _listState.emit(listState.value.copy(error = throwable))
+    private val coroutineExceptionHandler =
+        CoroutineExceptionHandler { coroutineContext, throwable ->
+            // handle thrown exceptions from coroutine scope
+            Log.e("PictureListViewModel coroutineExceptionHandler", throwable.toString())
+            if (throwable is java.lang.Exception) {
+                viewModelScope.launch {
+                    _listState.emit(listState.value.copy(error = throwable))
+                }
             }
         }
-    }
+
     init {
         handleIntent()
         sendIntent(PictureListIntent.LoadCashed)
     }
 
-    fun sendIntent(intent: PictureListIntent) = viewModelScope.launch(Dispatchers.IO)  {
+    fun sendIntent(intent: PictureListIntent) = viewModelScope.launch(Dispatchers.IO) {
         uiIntent.send(intent)
     }
 
@@ -57,14 +59,29 @@ class PictureListViewModel(
                     is PictureListIntent.Download -> {}//TODO()
                     PictureListIntent.DownloadSelectedPictures -> {}//TODO()
                     is PictureListIntent.LoadCashed -> {
-                        sdk.getCachedData()?.let {
-                            _listState.emit(listState.value.copy(searchTag = it.searchTag, list = it.picturesList, loading = false))
+                        val cashedData = sdk.getCachedData()
+                        if (cashedData != null) {
+                            _listState.emit(
+                                listState.value.copy(
+                                    searchTag = cashedData.searchTag,
+                                    list = cashedData.picturesList,
+                                    loading = false
+                                )
+                            )
+                        } else {
+                            sendIntent(PictureListIntent.LoadList("Electrolux"))
                         }
                     }
                     is PictureListIntent.LoadList -> {
                         _listState.emit(listState.value.copy(loading = true))
-                        val picturesInfo = sdk.getAllPicturesInfo( searchTag = it.key).picturesList
-                        _listState.emit(listState.value.copy(searchTag = it.key, list = picturesInfo, loading = false))
+                        val picturesInfo = sdk.getAllPicturesInfo(searchTag = it.key).picturesList
+                        _listState.emit(
+                            listState.value.copy(
+                                searchTag = it.key,
+                                list = picturesInfo,
+                                loading = false
+                            )
+                        )
                     }
                     is PictureListIntent.SelectPicture -> {}//TODO()
                 }
