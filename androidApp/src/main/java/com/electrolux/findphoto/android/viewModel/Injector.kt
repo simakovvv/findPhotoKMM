@@ -1,5 +1,15 @@
 package com.electrolux.findphoto.android.viewModel
 
-object Ingector {
+import android.content.Context
+import com.electrolux.findphoto.PicturesSDK
+import com.electrolux.findphoto.cache.DatabaseDriverFactory
 
+object Injector {
+    internal fun providePictureListViewModelFactory(context: Context) = PictureListViewModelFactory(
+        PicturesSDK(DatabaseDriverFactory(context))
+    )
+
+    internal fun providePictureDetailsViewModelFactory(context: Context) = PictureDetailsViewModelFactory(
+        PicturesSDK(DatabaseDriverFactory(context))
+    )
 }

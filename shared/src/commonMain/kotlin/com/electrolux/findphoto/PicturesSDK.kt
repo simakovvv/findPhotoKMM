@@ -14,24 +14,23 @@ class PicturesSDK(databaseDriverFactory: DatabaseDriverFactory) {
     private val database = Database(databaseDriverFactory)
     private val api = FlickrApi()
 
+    // returns stored search results
+    suspend fun getCachedData() = database.getAllPicturesInfo()
+
+    // returns search results by tag
     @Throws(Exception::class)
     suspend fun getAllPicturesInfo(
-        searchTag: String? = null,
+        searchTag: String,
         forceReload: Boolean = false
     ): PicturesInfoDAO {
-        val cachedLaunches = database.getAllPicturesInfo()
-        return if (cachedLaunches != null
+        val cached = database.getAllPicturesInfo()
+        return if (cached != null
             && !forceReload
-            && cachedLaunches.searchTag == searchTag
+            && cached.searchTag == searchTag
         ) {
-            cachedLaunches
-        } else if (searchTag == null && cachedLaunches?.searchTag != null) {
-            api.getAllPicturesInfo(cachedLaunches.searchTag, TOTAL_PHOTO_COUNT).toDAO().also {
-                database.clearDatabase()
-                database.storePictures(it)
-            }
+            cached
         } else {
-            api.getAllPicturesInfo(searchTag!!, TOTAL_PHOTO_COUNT).toDAO().also {
+            api.getAllPicturesInfo(searchTag, TOTAL_PHOTO_COUNT).toDAO().also {
                 database.clearDatabase()
                 database.storePictures(it)
             }

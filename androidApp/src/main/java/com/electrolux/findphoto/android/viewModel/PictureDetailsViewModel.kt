@@ -10,17 +10,15 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 
-sealed class PictureListIntent {
-    data class LoadList(val key: String) : PictureListIntent()
-    data class SelectPicture(val picture: Picture) : PictureListIntent()
-    object DownloadSelectedPictures : PictureListIntent()
-    data class Download(val pictureId: Int) : PictureListIntent()
+sealed class PictureDetailsIntent {
+    data class Load(val pictureId: Int) : PictureDetailsIntent()
 }
 
-data class PictureListState(
+data class PictureDetailsState(
     val loading: Boolean = false,
     val searchTag: String = "",
-    val list: List<PictureDetails> = listOf(),
+    val number: Int?,
+    val item: PictureDetails? = null,
     val error: Exception? = null
 )
 
@@ -31,7 +29,7 @@ data class PictureProfileState(
     val item: PictureDetails?  = null
 )
 
-class PictureListViewModel(
+class PictureDetailsViewModel(
     private val sdk: PicturesSDK
 ) : ViewModel() {
     private val uiIntent = Channel<PictureListIntent>(Channel.UNLIMITED)
@@ -47,13 +45,12 @@ class PictureListViewModel(
                 _uiState.emit(uiState.value.copy(error = throwable))
             }
         }
-    }
+
     init {
         handleIntent()
-        sendIntent(PictureListIntent.LoadList("Electrolux"))
     }
 
-    fun sendIntent(intent: PictureListIntent) = viewModelScope.launch(Dispatchers.IO)  {
+    fun sendIntent(intent: PictureDetailsIntent) = viewModelScope.launch(Dispatchers.IO) {
         uiIntent.send(intent)
     }
 
@@ -67,9 +64,10 @@ class PictureListViewModel(
                         val picturesInfo = sdk.getAllPicturesInfo( searchTag = it.key).picturesList
                         _uiState.emit(uiState.value.copy(searchTag = it.key, list = picturesInfo))
                     }
-                    is PictureListIntent.SelectPicture -> {}//TODO()
                 }
             }
         }
     }
+
+
 }

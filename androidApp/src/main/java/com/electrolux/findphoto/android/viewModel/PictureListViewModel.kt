@@ -24,23 +24,13 @@ data class PictureListState(
     val error: Exception? = null
 )
 
-data class PictureProfileState(
-    val loading: Boolean = false,
-    val searchTag: String = "",
-    val number: Int,
-    val item: PictureDetails?  = null
-)
-
-class PictureViewModel(
+class PictureListViewModel(
     private val sdk: PicturesSDK
 ) : ViewModel() {
     private val uiIntent = Channel<PictureListIntent>(Channel.UNLIMITED)
 
     private val _listState = MutableStateFlow(PictureListState(false, "", listOf(), null))
     val listState = _listState.asStateFlow()
-
-    private val _profileState = MutableStateFlow(PictureProfileState(false, "", null, null))
-    val profileState = _listState.asStateFlow()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         // handle thrown exceptions from coroutine scope
