@@ -1,0 +1,25 @@
+CREATE TABLE PictureInfoDAO (
+    picture_id INTEGER NOT NULL,
+    picture_tag TEXT NOT NULL,
+    picture_title TEXT NOT NULL,
+    picture_url TEXT NOT NULL
+);
+
+insertPictureInfo:
+INSERT INTO PictureInfoDAO(picture_id, picture_tag, picture_title, picture_url)
+VALUES(?, ?, ?, ?);
+
+removeAllPicturesInfo:
+DELETE FROM PictureInfoDAO;
+
+selectPictureById:
+SELECT * FROM PictureInfoDAO
+WHERE picture_id = ?;
+
+getSearchTag:
+SELECT picture_tag FROM PictureInfoDAO
+WHERE picture_id = 1;
+
+selectAllPicturesInfo:
+SELECT PictureInfoDAO.*
+FROM PictureInfoDAO;
