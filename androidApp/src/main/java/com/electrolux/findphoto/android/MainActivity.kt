@@ -2,30 +2,47 @@ package com.electrolux.findphoto.android
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import com.electrolux.findphoto.Greeting
-import android.widget.TextView
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
-import androidx.navigation.Navigator
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.electrolux.findphoto.PicturesSDK
 import com.electrolux.findphoto.android.compose.ui.AppTheme
-import com.electrolux.findphoto.cache.DatabaseDriverFactory
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme.typography
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.navigation.NavHostController
+import coil.ImageLoader
+import coil.compose.ImagePainter
+import coil.compose.LocalImageLoader
+import coil.compose.rememberImagePainter
+import coil.request.CachePolicy
+import com.electrolux.findphoto.entity.PictureDetails
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 fun greet(): String {
     return Greeting().greeting()
@@ -33,6 +50,7 @@ fun greet(): String {
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var navController: NavHostController
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /*setContentView(R.layout.activity_main)
@@ -53,7 +71,7 @@ class MainActivity : AppCompatActivity() {
                             )
                         )
                     ) {
-                        SetupNavigation()
+                       SetupNavigation()
                     }
                 }
             }
@@ -62,43 +80,90 @@ class MainActivity : AppCompatActivity() {
 
     @Composable
     fun SetupNavigation() {
-        val navController = rememberNavController()
+        navController = rememberNavController()
         NavHost(navController, startDestination = "pictureList") {
             composable(route = "pictureList") {
-                PictureList(navController)
+                PictureList()
             }
             composable(route = "pictureDetails") {
-                PictureDetailsScreen(navController)
+                PictureDetailsScreen()
             }
         }
     }
 
     @Composable
     fun PictureList(
-        navController: NavController,
         viewModel: PictureViewModel = providePictureViewModelFactory(applicationContext)
     ) {
-        val uiState by viewModel.uiState.collectAsState()
-        viewModel.sendIntent(PictureListIntent.LoadList("Electrolux"))
-        when(uiState) {
-            is PictureListState.Error -> {}//TODO()
-            PictureListState.Loading -> {}// TODO()
-            is PictureListState.UpdateItem -> {}//TODO()
-            is PictureListState.UpdateList -> {
-                Log.d("Flickr search", (uiState as PictureListState.UpdateList).list.size.toString())
-            }//TODO()
-        }
-        Button(onClick = { navController.navigate("pictureDetails") }) {
-            Text("Recycler view will be here")
-        }.apply {
-
+        val listState by viewModel.uiState.collectAsState()
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            items(
+                items = listState.list,
+                itemContent = {
+                    PictureDetailsItem(it, listState.searchTag, listState.list.indexOf(it))
+                })
         }
     }
 
     @Composable
-    fun PictureDetailsScreen(navController: NavController) {
+    fun PictureDetailsScreen() {
         Button(onClick = { navController.navigate("pictureList") }) {
             Text("Go back to list!")
         }
     }
+
+    @Composable
+    fun PictureDetailsItem(
+        details: PictureDetails, searchTag: String, num: Int
+    ) {
+        Card(
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .fillMaxWidth()
+                .clickable(enabled = true, onClick = { navController.navigate("pictureDetails") }),
+            elevation = 2.dp,
+            backgroundColor = Color.White,
+            shape = RoundedCornerShape(corner = CornerSize(16.dp))
+        ) {
+            Row (
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Picture(details.url)
+                Column ( modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.CenterVertically)) {
+                    Text(text = details.title, style = typography.h6)
+                    Text(text = "Num: $num. Search tag: $searchTag", style = TextStyle(fontStyle = FontStyle.Italic))
+                }
+            }
+        }
+
+    }
+
+    @Composable
+    fun Picture(url: String) {
+        val imageLoader = LocalImageLoader.current
+        CompositionLocalProvider(LocalImageLoader provides imageLoader) {
+            val painter = rememberImagePainter(
+                data = url,
+                builder = {
+                    crossfade(true)
+                    memoryCachePolicy(policy = CachePolicy.ENABLED)
+                }
+            )
+            Image(
+                painter = painter,
+                contentScale = ContentScale.Crop,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(84.dp)
+                    .clip(RoundedCornerShape(corner = CornerSize(16.dp)))
+            )
+        }
+    }
 }
+

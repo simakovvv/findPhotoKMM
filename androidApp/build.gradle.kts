@@ -54,4 +54,7 @@ dependencies {
 
     // UI Tests
     androidTestImplementation ("androidx.compose.ui:ui-test-junit4:1.0.5")
+
+    // Images downloading
+    implementation("io.coil-kt:coil-compose:1.4.0")
 }

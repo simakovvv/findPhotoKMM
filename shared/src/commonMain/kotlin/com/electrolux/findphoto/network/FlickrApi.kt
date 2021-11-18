@@ -19,7 +19,7 @@ class FlickrApi {
         }
     }
 
-    suspend fun getAllPictures(keyWord: String, totalCount: Int): PicturesInfoDTO  {
+    suspend fun getAllPicturesInfo(keyWord: String, totalCount: Int): PicturesInfoDTO  {
         val result: FlickrPicturesResult =  httpClient.get(LAUNCHES_ENDPOINT) {
             parameter("api_key", API_KEY)
             parameter("method", SERVICE_NAME)
