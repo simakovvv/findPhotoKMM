@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
                             )
                         )
                     ) {
-                       SetupNavigation()
+                        SetupNavigation()
                     }
                 }
             }
@@ -140,28 +140,3 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
-    @Composable
-    fun Picture(url: String) {
-        val imageLoader = LocalImageLoader.current
-        CompositionLocalProvider(LocalImageLoader provides imageLoader) {
-            val painter = rememberImagePainter(
-                data = url,
-                builder = {
-                    crossfade(true)
-                    memoryCachePolicy(policy = CachePolicy.ENABLED)
-                }
-            )
-            Image(
-                painter = painter,
-                contentScale = ContentScale.Crop,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(84.dp)
-                    .clip(RoundedCornerShape(corner = CornerSize(16.dp)))
-            )
-        }
-    }
-}
-

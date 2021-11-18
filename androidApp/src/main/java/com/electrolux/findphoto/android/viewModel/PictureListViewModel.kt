@@ -46,7 +46,7 @@ class PictureListViewModel(
         sendIntent(PictureListIntent.LoadCashed)
     }
 
-    private fun sendIntent(intent: PictureListIntent) = viewModelScope.launch(Dispatchers.IO)  {
+    fun sendIntent(intent: PictureListIntent) = viewModelScope.launch(Dispatchers.IO)  {
         uiIntent.send(intent)
     }
 
@@ -62,8 +62,9 @@ class PictureListViewModel(
                         }
                     }
                     is PictureListIntent.LoadList -> {
+                        _listState.emit(listState.value.copy(loading = true))
                         val picturesInfo = sdk.getAllPicturesInfo( searchTag = it.key).picturesList
-                        _listState.emit(listState.value.copy(searchTag = it.key, list = picturesInfo))
+                        _listState.emit(listState.value.copy(searchTag = it.key, list = picturesInfo, loading = false))
                     }
                     is PictureListIntent.SelectPicture -> {}//TODO()
                 }
