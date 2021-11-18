@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.electrolux.findphoto.PicturesSDK
-import com.electrolux.findphoto.entity.Picture
 import com.electrolux.findphoto.entity.PictureDetails
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel

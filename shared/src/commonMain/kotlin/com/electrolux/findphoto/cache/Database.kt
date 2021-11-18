@@ -37,9 +37,7 @@ internal class Database(databaseDriverFactory: DatabaseDriverFactory) {
     internal fun storePictures(pictures: PicturesInfoDAO) {
         dbQuery.transaction {
             pictures.picturesList.forEach { picture ->
-                dbQuery.selectPictureById(picture.id.toLong()).executeAsOneOrNull()?.let {
-                    insertPictureInfo(pictures.searchTag,picture)
-                }
+                insertPictureInfo(pictures.searchTag,picture)
             }
         }
     }

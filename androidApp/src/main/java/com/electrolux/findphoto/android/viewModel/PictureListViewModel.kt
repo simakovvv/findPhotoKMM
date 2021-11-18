@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.electrolux.findphoto.PicturesSDK
-import com.electrolux.findphoto.entity.Picture
 import com.electrolux.findphoto.entity.PictureDetails
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -12,7 +11,7 @@ import kotlinx.coroutines.flow.*
 
 sealed class PictureListIntent {
     data class LoadList(val key: String) : PictureListIntent()
-    data class SelectPicture(val picture: Picture) : PictureListIntent()
+    data class SelectPicture(val pictureId: Int) : PictureListIntent()
     object DownloadSelectedPictures : PictureListIntent()
     data class Download(val pictureId: Int) : PictureListIntent()
 }
@@ -34,7 +33,7 @@ class PictureListViewModel(
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
         // handle thrown exceptions from coroutine scope
-        Log.e("Flickr coroutineExceptionHandler", throwable.toString())
+        Log.e("PictureListViewModel coroutineExceptionHandler", throwable.toString())
         if(throwable is java.lang.Exception) {
             viewModelScope.launch {
                 _listState.emit(listState.value.copy(error = throwable))

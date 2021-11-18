@@ -33,7 +33,7 @@ import com.electrolux.findphoto.android.viewModel.Injector
 import com.electrolux.findphoto.entity.PictureDetails
 
 @Composable
-fun PictureList(
+internal fun PictureList(
     context: Context,
     navController: NavHostController,
     viewModel: PictureListViewModel =
@@ -54,7 +54,7 @@ fun PictureList(
 
 
 @Composable
-fun PictureDetailsItem(
+internal fun PictureDetailsItem(
     details: PictureDetails,
     searchTag: String,
     num: Int,
@@ -91,7 +91,7 @@ fun PictureDetailsItem(
 }
 
 @Composable
-fun Picture(url: String) {
+internal fun Picture(url: String) {
     val imageLoader = LocalImageLoader.current
     CompositionLocalProvider(LocalImageLoader provides imageLoader) {
         val painter = rememberImagePainter(

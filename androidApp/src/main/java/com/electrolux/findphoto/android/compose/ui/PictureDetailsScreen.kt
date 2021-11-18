@@ -28,7 +28,7 @@ import com.electrolux.findphoto.android.viewModel.Injector
 import com.electrolux.findphoto.entity.PictureDetails
 
 @Composable
-fun PictureDetailsScreen(
+internal fun PictureDetailsScreen(
     context: Context,
     navController: NavHostController,
     pictureId: Int?,
@@ -50,10 +50,13 @@ fun PictureDetailsScreen(
                         .fillMaxSize()
                         .verticalScroll(scrollState),
                 ) {
-                    PictureDetailsHeader(
-                        profileState.item.url,
-                        this@BoxWithConstraints.maxHeight
-                    )
+                    profileState.item?.url?.let {
+                        PictureDetailsHeader(
+                            it,
+                            this@BoxWithConstraints.maxHeight
+                        )
+                    }
+
                     ProfileContent(profileState,this@BoxWithConstraints.maxHeight)
                 }
             }
@@ -121,7 +124,7 @@ private fun Title(
 }
 
 @Composable
-fun ProfileProperty(label: String, value: String) {
+private fun ProfileProperty(label: String, value: String) {
     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
         Divider(modifier = Modifier.padding(bottom = 4.dp))
         Text(
