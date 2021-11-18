@@ -15,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -24,9 +25,11 @@ import androidx.navigation.NavHostController
 import coil.compose.LocalImageLoader
 import coil.compose.rememberImagePainter
 import coil.request.CachePolicy
+import com.electrolux.findphoto.android.MainActivity.Companion.LIST_DESTINATION
 import com.electrolux.findphoto.android.PictureDetailsIntent
 import com.electrolux.findphoto.android.PictureDetailsState
 import com.electrolux.findphoto.android.PictureDetailsViewModel
+import com.electrolux.findphoto.android.R
 import com.electrolux.findphoto.android.viewModel.Injector
 import com.electrolux.findphoto.entity.PictureDetails
 
@@ -42,7 +45,7 @@ internal fun PictureDetailsScreen(
     val profileState by viewModel.profileState.collectAsState()
     val scrollState = rememberScrollState()
 
-    val onBack = { navController.navigate("pictureList") }
+    val onBack = { navController.navigate(LIST_DESTINATION) }
     BackHandler(onBack = onBack)
     Scaffold(
         topBar = { DetailTopAppBar(onBack) }
@@ -102,8 +105,8 @@ private fun ProfileContent(picDetails: PictureDetailsState, containerHeight: Dp)
         picDetails.item?.title?.let {
             Title(it)
         }
-        ProfileProperty("Num:", picDetails.number.toString())
-        ProfileProperty("Search tag:", picDetails.searchTag)
+        ProfileProperty(stringResource(R.string.search_result_num), picDetails.number.toString())
+        ProfileProperty(stringResource(R.string.search_tag), picDetails.searchTag)
         Spacer(Modifier.height((containerHeight - 320.dp).coerceAtLeast(0.dp)))
     }
 }
@@ -142,7 +145,7 @@ private fun ProfileProperty(label: String, value: String) {
 @Composable
 private fun DetailTopAppBar(onBack: () -> Unit) {
     TopAppBar(
-        title = { Text("Details") },
+        title = { Text(stringResource(R.string.details_screen_top_title)) },
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(

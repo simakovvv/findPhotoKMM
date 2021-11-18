@@ -45,6 +45,12 @@ import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val LIST_DESTINATION = "pictureList"
+        const val DETAILS_DESTINATION = "pictureDetails"
+        const val DETAILS_ITEM_ID = "pictureId"
+
+    }
 
     private lateinit var navController: NavHostController
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_explanation">Some error occurred during the search process. Try again to find it.</string>
+    <string name="search_result_num">Num:</string>
+    <string name="search_tag">Search tag:</string>
+    <string name="details_screen_top_title">Details</string>
+</resources>
