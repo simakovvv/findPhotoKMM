@@ -21,9 +21,10 @@ import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.runtime.CompositionLocalProvider
@@ -33,16 +34,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.unit.Dp
 import androidx.navigation.NavHostController
-import coil.ImageLoader
-import coil.compose.ImagePainter
 import coil.compose.LocalImageLoader
 import coil.compose.rememberImagePainter
+import androidx.lifecycle.viewmodel.compose.*
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import coil.request.CachePolicy
+import com.electrolux.findphoto.android.compose.ui.PictureDetailsScreen
+import com.electrolux.findphoto.android.compose.ui.PictureList
+
+import com.electrolux.findphoto.android.viewModel.Injector.providePictureDetailsViewModelFactory
+import com.electrolux.findphoto.android.viewModel.Injector.providePictureListViewModelFactory
 import com.electrolux.findphoto.entity.PictureDetails
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -79,64 +84,18 @@ class MainActivity : AppCompatActivity() {
     @Composable
     fun SetupNavigation() {
         navController = rememberNavController()
-        NavHost(navController, startDestination = "pictureList") {
-            composable(route = "pictureList") {
-                PictureList()
+        NavHost(navController, startDestination = LIST_DESTINATION) {
+            composable(route = LIST_DESTINATION) {
+                PictureList(applicationContext, navController)
             }
-            composable(route = "pictureDetails") {
-                PictureDetailsScreen()
-            }
-        }
-    }
-
-    @Composable
-    fun PictureList(
-        viewModel: PictureViewModel = providePictureViewModelFactory(applicationContext)
-    ) {
-        val listState by viewModel.uiState.collectAsState()
-        LazyColumn(
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            items(
-                items = listState.list,
-                itemContent = {
-                    PictureDetailsItem(it, listState.searchTag, listState.list.indexOf(it))
-                })
-        }
-    }
-
-    @Composable
-    fun PictureDetailsScreen() {
-        Button(onClick = { navController.navigate("pictureList") }) {
-            Text("Go back to list!")
-        }
-    }
-
-    @Composable
-    fun PictureDetailsItem(
-        details: PictureDetails, searchTag: String, num: Int
-    ) {
-        Card(
-            modifier = Modifier
-                .padding(horizontal = 8.dp, vertical = 8.dp)
-                .fillMaxWidth()
-                .clickable(enabled = true, onClick = { navController.navigate("pictureDetails") }),
-            elevation = 2.dp,
-            backgroundColor = Color.White,
-            shape = RoundedCornerShape(corner = CornerSize(16.dp))
-        ) {
-            Row (
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Picture(details.url)
-                Column ( modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .align(Alignment.CenterVertically)) {
-                    Text(text = details.title, style = typography.h6)
-                    Text(text = "Num: $num. Search tag: $searchTag", style = TextStyle(fontStyle = FontStyle.Italic))
-                }
+            composable(
+                route = "$DETAILS_DESTINATION/{$DETAILS_ITEM_ID}",
+                arguments = listOf(navArgument(DETAILS_ITEM_ID) { type = NavType.IntType })
+            ) { backStackEntry ->
+                val pictureId = backStackEntry.arguments?.getInt(DETAILS_ITEM_ID)
+                PictureDetailsScreen(applicationContext, navController, pictureId)
             }
         }
-
     }
+}
+

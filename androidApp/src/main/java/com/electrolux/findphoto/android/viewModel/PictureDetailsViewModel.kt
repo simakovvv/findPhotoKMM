@@ -32,17 +32,19 @@ class PictureDetailsViewModel(
     pictureId: Int?,
     private val sdk: PicturesSDK
 ) : ViewModel() {
-    private val uiIntent = Channel<PictureListIntent>(Channel.UNLIMITED)
+    private val uiIntent = Channel<PictureDetailsIntent>(Channel.UNLIMITED)
 
-    private val _uiState = MutableStateFlow(PictureListState(false, "", listOf(), null))
-    val uiState = _uiState.asStateFlow()
+    private val _profileState = MutableStateFlow(PictureDetailsState(false, "", null, null))
+    val profileState = _profileState.asStateFlow()
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
-        // handle thrown exceptions from coroutine scope
-        Log.e("Flickr coroutineExceptionHandler", throwable.toString())
-        if(throwable is java.lang.Exception) {
-            viewModelScope.launch {
-                _uiState.emit(uiState.value.copy(error = throwable))
+    private val coroutineExceptionHandler =
+        CoroutineExceptionHandler { coroutineContext, throwable ->
+            // handle thrown exceptions from coroutine scope
+            Log.e("PictureDetailsState coroutineExceptionHandler", throwable.toString())
+            if (throwable is java.lang.Exception) {
+                viewModelScope.launch {
+                    _profileState.emit(_profileState.value.copy(error = throwable))
+                }
             }
         }
 
@@ -60,13 +62,20 @@ class PictureDetailsViewModel(
 
     private fun handleIntent() = viewModelScope.launch(coroutineExceptionHandler) {
         withContext(Dispatchers.IO) {
-            uiIntent.consumeAsFlow().collect {
-                when (it) {
-                    is PictureListIntent.Download -> {}//TODO()
-                    PictureListIntent.DownloadSelectedPictures -> {}//TODO()
-                    is PictureListIntent.LoadList -> {
-                        val picturesInfo = sdk.getAllPicturesInfo( searchTag = it.key).picturesList
-                        _uiState.emit(uiState.value.copy(searchTag = it.key, list = picturesInfo))
+            uiIntent.consumeAsFlow().collect { intent ->
+                when (intent) {
+                    is PictureDetailsIntent.Load -> {
+                        sdk.getCachedData()?.let { picsInfo ->
+                            val selectedPic =
+                                picsInfo.picturesList.find { it.id == intent.pictureId }
+                            _profileState.emit(
+                                _profileState.value.copy(
+                                    searchTag = picsInfo.searchTag,
+                                    number = picsInfo.picturesList.indexOf(selectedPic),
+                                    item = selectedPic
+                                )
+                            )
+                        }
                     }
                 }
             }

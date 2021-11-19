@@ -29,7 +29,7 @@ android {
         kotlinCompilerExtensionVersion = "1.0.4"
     }
 }
-val composeVersion = findProperty("version.compose") as String
+val composeVersion = "1.0.5"
 
 dependencies {
     implementation(project(":shared"))
